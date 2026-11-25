@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+:root {
+  --paper: #f6f3ec;
+  --surface: #fffdf8;
+  --ink: #1b1a17;
+  --muted: #5f5a50;
+  --line: #e3ddd0;
+  --ember: #b8432c;
+  --ember-ink: #fffdf8;
+  --moss: #3f6b4e;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #15130f;
+    --surface: #1e1b16;
+    --ink: #f1ece2;
+    --muted: #a39c8e;
+    --line: #2e2a23;
+    --ember: #e0775e;
+    --ember-ink: #15130f;
+    --moss: #86b394;
+  }
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-ember: var(--ember);
+  --color-ember-ink: var(--ember-ink);
+  --color-moss: var(--moss);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-fraunces);
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--ember);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}

@@ -1,0 +1,65 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`renderCustomInstructions > matches snapshot 1`] = `
+"How I write: Writes short, warm messages that get to the point fast. Explains with concrete examples rather than theory.
+
+Style:
+- (outreach) Lead with the reason for reaching out.
+- (technical) Start with a concrete example, then the general idea.
+- Keep messages under five sentences.
+
+Avoid:
+- Never open with 'I hope this email finds you well'.
+
+Examples of my writing:
+"Hey Sam, I'm reaching out because your post on onboarding hit home."
+"ok that hike destroyed me, 10/10 would do again"
+
+Always:
+- Preserve the facts and intent of the request.
+- Do not invent personal experiences, opinions or credentials.
+- Adapt to the audience and the requested format."
+`;
+
+exports[`renderSkillMd > matches snapshot 1`] = `
+"---
+name: personal-voice
+description: Write in Sam's approved communication style for emails, messages and other writing tasks.
+---
+
+# How Sam writes
+Writes short, warm messages that get to the point fast. Explains with concrete examples rather than theory.
+
+# General style
+- Keep messages under five sentences.
+
+# Outreach
+- Lead with the reason for reaching out.
+
+# Casual
+- Use light self-deprecating jokes.
+
+# Technical
+- Start with a concrete example, then the general idea.
+
+# Avoid
+- Never open with 'I hope this email finds you well'.
+
+# Examples
+
+outreach:
+\`\`\`
+Hey Sam, I'm reaching out because your post on onboarding hit home.
+\`\`\`
+
+casual:
+\`\`\`
+ok that hike destroyed me, 10/10 would do again
+\`\`\`
+
+# Guardrails
+- Preserve the facts and intent of the request.
+- Do not invent personal experiences, opinions or credentials.
+- Adapt to the audience and the requested format.
+"
+`;
