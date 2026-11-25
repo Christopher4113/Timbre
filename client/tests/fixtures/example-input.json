@@ -1,0 +1,19 @@
+{
+  "name": "Alex",
+  "turns": [
+    { "role": "agent", "text": "Imagine you're introducing yourself to a founder you admire. How would you start?", "scenario": "introduce_founder" },
+    { "role": "user", "text": "Um, so I'd probably just say why I'm reaching out first. Like, hey, I saw your post on onboarding and it's basically the exact problem I spent last year on. Then I'd say who I am, but short.", "scenario": "introduce_founder" },
+    { "role": "agent", "text": "Now explain a technical concept to a beginner. Maybe how a database index works?", "scenario": "explain_technical" },
+    { "role": "user", "text": "Okay so imagine you have a giant phone book that's not sorted. Finding someone means reading every page. An index is like the sorted tabs on the side. You jump to the letter, then look. That's really it, the rest is details.", "scenario": "explain_technical" },
+    { "role": "agent", "text": "Your coworker wants to ship a feature you think isn't ready. What do you say?", "scenario": "disagree_coworker" },
+    { "role": "user", "text": "I'd say it straight. I don't think it's ready, and here's the one thing that worries me. Then I'd ask what they'd need to see to wait a week. I don't like dancing around it.", "scenario": "disagree_coworker" },
+    { "role": "agent", "text": "Tell me about something fun you did recently, like you're telling a friend.", "scenario": "tell_friend" },
+    { "role": "user", "text": "Oh man, I did this hike last weekend that completely destroyed me. Classic me, I wore the wrong shoes. But the view at the top, ten out of ten, would suffer again.", "scenario": "tell_friend" }
+  ],
+  "samples": [
+    { "id": "s1", "context": "outreach", "text": "Hi Priya,\n\nI'm reaching out because your onboarding post described exactly the problem I spent last year on. I led activation at a 20-person startup and got week-one retention from 31% to 52%.\n\nWould you be up for a 20 minute call next week?\n\nAlex" },
+    { "id": "s2", "context": "casual", "text": "ok that hike destroyed me lol. wrong shoes, again. view was worth it though 10/10" },
+    { "id": "s3", "context": "technical", "text": "Quick version: the query was slow because it scanned every row. Adding an index on user_id means Postgres jumps straight to the matching rows. Went from 4s to 40ms.\n\nLonger version in the PR if you want it." },
+    { "id": "s4", "context": "application", "aiDraft": "I hope this message finds you well. I am writing to express my strong interest in the Product Manager position and to highlight my passion for building user-centric solutions.", "text": "I'm applying for the Product Manager role because I've spent two years fixing the exact onboarding problems your team writes about. At my last company I raised week-one retention from 31% to 52%." }
+  ]
+}
