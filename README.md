@@ -21,6 +21,8 @@ Without `RESEND_API_KEY`, magic links print to the dev server console.
 | `pnpm test` | Vitest (renderer snapshots, proxy auth gate) |
 | `pnpm typecheck` | `tsc --noEmit` |
 | `pnpm db:generate` | New migration from `lib/db/schema.ts` |
+| `pnpm test:db` | Integration tests against the Neon DB in `.env.local` |
+| `pnpm eval:offline [file]` | Build a profile from a fixture (default `fixtures/founder.json`; format: `tests/fixtures/example-input.json`). Output in `fixtures/out/` |
 
 ## Security model
 

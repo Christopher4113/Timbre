@@ -11,10 +11,14 @@
     "typecheck": "tsc --noEmit",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "test:db": "node --env-file=.env.local node_modules/vitest/vitest.mjs run tests/db"
+    "test:db": "node --env-file=.env.local node_modules/vitest/vitest.mjs run tests/db",
+    "eval:offline": "tsx scripts/eval-offline.ts"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^4.0.108",
+    "@ai-sdk/openai": "^4.0.123",
     "@neondatabase/serverless": "^1.2.1",
+    "ai": "^7.0.181",
     "better-auth": "^1.7.28",
     "diff": "^9.0.0",
     "drizzle-orm": "^0.45.4",
