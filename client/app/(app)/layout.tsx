@@ -23,6 +23,7 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
             <Wordmark />
             <nav aria-label="Main" className="flex gap-4 text-sm text-muted">
               <Link href="/onboarding" className="hover:text-ink">Steps</Link>
+              <Link href="/interview" className="hover:text-ink">Interview</Link>
               <Link href="/samples" className="hover:text-ink">Samples</Link>
               <Link href="/review" className="hover:text-ink">Review</Link>
               <Link href="/export" className="hover:text-ink">Export</Link>

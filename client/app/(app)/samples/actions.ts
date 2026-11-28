@@ -2,10 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { after } from "next/server";
 import { z } from "zod";
-import { runProfileBuild } from "@/lib/build-profile";
-import { addSample, countSamples, createJob, deleteSample, getActiveJob, hitRateLimit } from "@/lib/db/queries";
+import { startBuild } from "@/lib/build-profile";
+import { addSample, countSamples, deleteSample } from "@/lib/db/queries";
 import { MAX_SAMPLES, MIN_SAMPLES } from "@/lib/samples";
 import { displayName, requireConsentedUser } from "@/lib/session";
 
@@ -40,12 +39,8 @@ export async function deleteSampleAction(form: FormData) {
 
 export async function startBuildAction() {
   const user = await requireConsentedUser();
-  const active = await getActiveJob(user.id);
-  if (active) redirect(`/building?job=${active.id}`);
   if ((await countSamples(user.id)) < MIN_SAMPLES) redirect("/samples?error=too_few");
-  if (!(await hitRateLimit(user.id, "profileBuild")).ok) redirect("/samples?error=rate_limited");
-
-  const job = await createJob(user.id);
-  after(() => runProfileBuild(user.id, job.id, displayName(user)));
-  redirect(`/building?job=${job.id}`);
+  const res = await startBuild(user.id, displayName(user));
+  if ("error" in res) redirect(`/samples?error=${res.error}`);
+  redirect(`/building?job=${res.jobId}`);
 }

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { countSamples, getActiveJob, getLatestProfile } from "@/lib/db/queries";
+import { countSamples, getActiveJob, getLatestInterview, getLatestProfile } from "@/lib/db/queries";
 import { MIN_SAMPLES } from "@/lib/samples";
 import { requireConsentedUser } from "@/lib/session";
 import { card, h1 } from "@/lib/ui";
@@ -8,11 +8,15 @@ type Step = { title: string; detail: string; state: "done" | "next" | "running" 
 
 export default async function OnboardingPage() {
   const user = await requireConsentedUser();
-  const [samples, profile, job] = await Promise.all([countSamples(user.id), getLatestProfile(user.id), getActiveJob(user.id)]);
+  const [samples, profile, job, interview] = await Promise.all([countSamples(user.id), getLatestProfile(user.id), getActiveJob(user.id), getLatestInterview(user.id)]);
   const hasSamples = samples >= MIN_SAMPLES;
 
   const steps: Step[] = [
-    { title: "Voice interview", detail: "About 10 minutes. Coming soon, optional for now", state: "soon" },
+    interview?.status === "ready"
+      ? { title: "Voice interview", detail: "Transcript saved", state: "done", href: "/interview" }
+      : interview
+        ? { title: "Voice interview", detail: "Processing your transcript", state: "running", href: "/interview" }
+        : { title: "Voice interview", detail: "About 10 minutes", state: "next", href: "/interview" },
     { title: "Writing samples", detail: `${samples} added, ${MIN_SAMPLES} to 10 needed`, state: hasSamples ? "done" : "next", href: "/samples" },
     job
       ? { title: "Build profile", detail: "Building now", state: "running", href: `/building?job=${job.id}` }
