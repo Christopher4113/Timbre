@@ -6,5 +6,5 @@ export function baselineSystem() {
 }
 
 export function generateBaseline(task: string) {
-  return generateDraft(baselineSystem(), task);
+  return generateDraft(baselineSystem(), task, "generate-baseline");
 }

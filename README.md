@@ -32,3 +32,4 @@ Without `RESEND_API_KEY`, magic links print to the dev server console.
 - **SQL injection.** All DB access goes through Drizzle in `client/lib/db/queries.ts`, which parameterizes every value. Never use `sql.raw()` or string-built SQL with user input. Validate request bodies with Zod before they reach queries.
 - **Data scoping.** Every query function takes `userId`. Route handlers never query tables directly.
 - **Headers.** HSTS, `X-Frame-Options: DENY`, `nosniff`, strict referrer, mic limited to same origin (`client/next.config.ts`).
+- **Tracing.** With `LANGFUSE_PUBLIC_KEY`/`LANGFUSE_SECRET_KEY` set, `client/instrumentation.ts` traces every LLM call to Langfuse, attributed to the user. Every settings delete also deletes that user's traces (the key needs the `traces:delete` permission). Restart the dev server after changing keys.

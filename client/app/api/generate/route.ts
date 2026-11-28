@@ -4,6 +4,7 @@ import { getLatestProfile, insertComparison } from "@/lib/db/queries";
 import { generateBaseline } from "@/lib/generate/baseline";
 import { generatePersonalized } from "@/lib/generate/personalized";
 import { GENERATE_PROMPT_VERSION } from "@/lib/generate/prompts/system";
+import { traced } from "@/lib/langfuse";
 import { modelFromEnv } from "@/lib/llm";
 import { VoiceProfile } from "@/lib/schema";
 import { apiUser } from "@/lib/session";
@@ -25,7 +26,9 @@ export async function POST(req: Request) {
 
   let baseline: string, personalized: string;
   try {
-    [baseline, personalized] = await Promise.all([generateBaseline(body.data.task), generatePersonalized(body.data.task, profile)]);
+    [baseline, personalized] = await traced(auth.user.id, "playground", () =>
+      Promise.all([generateBaseline(body.data.task), generatePersonalized(body.data.task, profile)]),
+    );
   } catch (e) {
     console.error("playground generation failed", e instanceof Error ? e.message : e);
     return Response.json({ error: "generation_failed" }, { status: 502 });
