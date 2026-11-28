@@ -45,3 +45,11 @@ export async function apiUser(bucket?: LimitBucket) {
   }
   return { user } as const;
 }
+
+/** Name used in exports ("How {name} writes"). Magic-link users may not have one yet. */
+export function displayName(user: { name?: string | null; email: string }) {
+  const n = user.name?.trim();
+  if (n) return n;
+  const local = user.email.split("@")[0].replace(/[._-]+/g, " ").trim();
+  return local.charAt(0).toUpperCase() + local.slice(1);
+}
