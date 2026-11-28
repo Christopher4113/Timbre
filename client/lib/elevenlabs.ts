@@ -31,3 +31,22 @@ export function verifyWebhookSignature(
   const b = Buffer.from(parts.v0);
   return a.length === b.length && timingSafeEqual(a, b);
 }
+
+/**
+ * Deletes ElevenLabs' own copy of these conversations (transcript and any logs).
+ * Best effort: failures are logged, never thrown, so a user's deletion always completes here.
+ */
+export async function deleteConversations(conversationIds: string[]) {
+  const results = await Promise.allSettled(
+    conversationIds.map(async (id) => {
+      const res = await fetch(`https://api.elevenlabs.io/v1/convai/conversations/${encodeURIComponent(id)}`, {
+        method: "DELETE",
+        headers: { "xi-api-key": process.env.ELEVENLABS_API_KEY! },
+      });
+      if (!res.ok && res.status !== 404) throw new Error(`${id}: ${res.status}`);
+    }),
+  );
+  const failed = results.filter((r) => r.status === "rejected");
+  if (failed.length) console.error("ElevenLabs conversation delete failed", failed.map((f) => (f as PromiseRejectedResult).reason?.message));
+  return { deleted: results.length - failed.length, failed: failed.length };
+}

@@ -40,9 +40,43 @@ export async function hitRateLimit(userId: string, bucket: LimitBucket) {
   return { ok: row.count <= max, remaining: Math.max(0, max - row.count), resetAt };
 }
 
-/** Deletes the user row; every app table cascades. */
+// ---- Deletion (settings) ----
+// Each returns what the caller needs for cleanup outside Postgres.
+
+/** Deletes all interview transcripts. Returns their ElevenLabs conversation ids. */
+export async function deleteInterviews(userId: string) {
+  const rows = await db.delete(interviews).where(eq(interviews.userId, userId)).returning({ conversationId: interviews.conversationId });
+  return rows.map((r) => r.conversationId);
+}
+
+export async function deleteSamples(userId: string) {
+  const rows = await db.delete(samples).where(eq(samples.userId, userId)).returning({ id: samples.id });
+  return rows.length;
+}
+
+/** Deletes every profile version. Playground comparisons cascade (they hold outputs made from the profile). */
+export async function deleteProfiles(userId: string) {
+  const rows = await db.delete(profiles).where(eq(profiles.userId, userId)).returning({ id: profiles.id });
+  return rows.length;
+}
+
+/**
+ * Deletes the user. Sessions, consents, interviews, samples, profiles, comparisons and jobs
+ * cascade; rate-limit counters are keyed by user id, so they're removed explicitly.
+ * Returns ElevenLabs conversation ids for cleanup.
+ */
 export async function deleteAccount(userId: string) {
+  const conversationIds = (await db.select({ id: interviews.conversationId }).from(interviews).where(eq(interviews.userId, userId))).map((r) => r.id);
+  await db.delete(aiUsage).where(sql`${aiUsage.key} like ${`${userId}:%`}`);
   await db.delete(users).where(eq(users.id, userId));
+  return conversationIds;
+}
+
+export async function getDataCounts(userId: string) {
+  const n = (t: typeof interviews | typeof samples | typeof profiles | typeof comparisons) =>
+    db.select({ n: count() }).from(t).where(eq(t.userId, userId)).then((r) => r[0].n);
+  const [interviewCount, sampleCount, profileCount, comparisonCount] = await Promise.all([n(interviews), n(samples), n(profiles), n(comparisons)]);
+  return { interviews: interviewCount, samples: sampleCount, profiles: profileCount, comparisons: comparisonCount };
 }
 
 // ---- Samples ----

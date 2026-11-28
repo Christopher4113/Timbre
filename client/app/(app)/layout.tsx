@@ -28,6 +28,7 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
               <Link href="/review" className="hover:text-ink">Review</Link>
               <Link href="/playground" className="hover:text-ink">Playground</Link>
               <Link href="/export" className="hover:text-ink">Export</Link>
+              <Link href="/settings" className="hover:text-ink">Settings</Link>
             </nav>
           </div>
           <form action={signOut} className="flex items-center gap-4 text-sm text-muted">
