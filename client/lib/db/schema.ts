@@ -126,6 +126,7 @@ export const comparisons = pgTable("comparisons", {
   editedText: text("edited_text"),
   editDistance: integer("edit_distance"),
   model: text("model").notNull(),
+  promptVersion: text("prompt_version"),
   createdAt: createdAt(),
 });
 
