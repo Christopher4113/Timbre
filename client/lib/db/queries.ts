@@ -1,7 +1,7 @@
 import "server-only";
 import { and, asc, count, desc, eq, max, sql } from "drizzle-orm";
 import { db } from "./client";
-import { aiUsage, consents, interviews, profileJobs, profiles, samples, users } from "./schema";
+import { aiUsage, comparisons, consents, interviews, profileJobs, profiles, samples, users } from "./schema";
 import type { VoiceProfile } from "@/lib/schema";
 import { LIMITS, type LimitBucket } from "@/lib/rate-limit";
 
@@ -146,4 +146,31 @@ export async function finishJob(userId: string, id: string, result: { profileId:
     .update(profileJobs)
     .set("profileId" in result ? { status: "done", profileId: result.profileId } : { status: "failed", error: result.error })
     .where(and(eq(profileJobs.id, id), eq(profileJobs.userId, userId)));
+}
+
+// ---- Playground comparisons ----
+export async function insertComparison(userId: string, c: Omit<typeof comparisons.$inferInsert, "id" | "userId" | "createdAt">) {
+  const [row] = await db.insert(comparisons).values({ ...c, userId }).returning({ id: comparisons.id });
+  return row;
+}
+
+export async function getComparison(userId: string, id: string) {
+  const [row] = await db.select().from(comparisons).where(and(eq(comparisons.id, id), eq(comparisons.userId, userId)));
+  return row ?? null;
+}
+
+export async function updateComparison(
+  userId: string,
+  id: string,
+  patch: Partial<Pick<typeof comparisons.$inferInsert, "picked" | "sendAsIs" | "editedText" | "editDistance">>,
+) {
+  await db.update(comparisons).set(patch).where(and(eq(comparisons.id, id), eq(comparisons.userId, userId)));
+}
+
+export async function countComparisons(userId: string) {
+  const [row] = await db
+    .select({ total: count(), picked: count(comparisons.picked) })
+    .from(comparisons)
+    .where(eq(comparisons.userId, userId));
+  return row;
 }

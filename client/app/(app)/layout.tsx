@@ -26,6 +26,7 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
               <Link href="/interview" className="hover:text-ink">Interview</Link>
               <Link href="/samples" className="hover:text-ink">Samples</Link>
               <Link href="/review" className="hover:text-ink">Review</Link>
+              <Link href="/playground" className="hover:text-ink">Playground</Link>
               <Link href="/export" className="hover:text-ink">Export</Link>
             </nav>
           </div>

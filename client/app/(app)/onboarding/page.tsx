@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { countSamples, getActiveJob, getLatestInterview, getLatestProfile } from "@/lib/db/queries";
+import { countComparisons, countSamples, getActiveJob, getLatestInterview, getLatestProfile } from "@/lib/db/queries";
 import { MIN_SAMPLES } from "@/lib/samples";
 import { requireConsentedUser } from "@/lib/session";
 import { card, h1 } from "@/lib/ui";
@@ -8,7 +8,7 @@ type Step = { title: string; detail: string; state: "done" | "next" | "running" 
 
 export default async function OnboardingPage() {
   const user = await requireConsentedUser();
-  const [samples, profile, job, interview] = await Promise.all([countSamples(user.id), getLatestProfile(user.id), getActiveJob(user.id), getLatestInterview(user.id)]);
+  const [samples, profile, job, interview, comparisons] = await Promise.all([countSamples(user.id), getLatestProfile(user.id), getActiveJob(user.id), getLatestInterview(user.id), countComparisons(user.id)]);
   const hasSamples = samples >= MIN_SAMPLES;
 
   const steps: Step[] = [
@@ -22,7 +22,7 @@ export default async function OnboardingPage() {
       ? { title: "Build profile", detail: "Building now", state: "running", href: `/building?job=${job.id}` }
       : { title: "Build profile", detail: "Runs in about a minute", state: profile ? "done" : hasSamples ? "next" : "locked", href: hasSamples ? "/samples" : undefined },
     { title: "Review rules", detail: "Keep, edit or delete", state: profile ? (profile.version > 1 ? "done" : "next") : "locked", href: profile ? "/review" : undefined },
-    { title: "Playground", detail: "Blind side-by-side. Coming soon", state: "soon" },
+    { title: "Playground", detail: `Blind side-by-side, ${comparisons.picked} of 3 tasks`, state: comparisons.picked >= 3 ? "done" : profile ? "next" : "locked", href: profile ? "/playground" : undefined },
     { title: "Export", detail: "SKILL.md and ChatGPT block", state: profile ? "next" : "locked", href: profile ? "/export" : undefined },
   ];
 
