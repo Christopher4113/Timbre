@@ -24,6 +24,7 @@ export async function extractSpeech(turns: Turn[]): Promise<Candidate[]> {
   const { output } = await generateText({
     model: modelFromEnv("extract").model,
     ...callSettings("extract"),
+    telemetry: { functionId: "extract-speech" },
     system: SPEECH_SYSTEM,
     prompt,
     output: Output.object({ schema: z.object({ candidates: z.array(Candidate) }) }),

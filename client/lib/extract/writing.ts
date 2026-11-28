@@ -23,6 +23,7 @@ export async function extractWriting(samples: Sample[]): Promise<WritingOutput> 
   const { output } = await generateText({
     model: modelFromEnv("extract").model,
     ...callSettings("extract"),
+    telemetry: { functionId: "extract-writing" },
     system: WRITING_SYSTEM,
     prompt: writingPrompt(samples),
     output: Output.object({ schema: WritingOutput }),

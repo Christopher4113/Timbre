@@ -71,6 +71,7 @@ export async function synthesize(input: PipelineInput, speech: Candidate[], writ
       const { output } = await generateText({
         model: modelFromEnv("extract").model,
         ...callSettings("extract"),
+        telemetry: { functionId: "synthesize" },
         system: SYNTHESIZE_SYSTEM,
         prompt: synthesizePrompt(speech, writing.candidates),
         output: Output.object({ schema: Merged }),

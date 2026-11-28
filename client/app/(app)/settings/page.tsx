@@ -36,7 +36,7 @@ export default async function SettingsPage() {
       <div>
         <h1 className={h1}>Settings</h1>
         <p className="mt-2 max-w-2xl text-muted">
-          Signed in as {user.email}. Transcripts and samples are sent to our AI model provider (Anthropic) only to build your profile and write playground drafts. Audio is never stored. Deleting here is permanent.
+          Signed in as {user.email}. Transcripts and samples are sent to our AI model provider (Anthropic) only to build your profile and write playground drafts. Audio is never stored. Every delete here also removes the matching AI request logs (traces). Deleting is permanent.
         </p>
       </div>
 

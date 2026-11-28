@@ -14,5 +14,5 @@ ${renderCustomInstructions(profile)}
 }
 
 export function generatePersonalized(task: string, profile: VoiceProfile) {
-  return generateDraft(personalizedSystem(profile), task);
+  return generateDraft(personalizedSystem(profile), task, "generate-profile");
 }

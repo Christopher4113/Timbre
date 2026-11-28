@@ -6,6 +6,7 @@ import { extractSpeech } from "@/lib/extract/speech";
 import { synthesize } from "@/lib/extract/synthesize";
 import { PipelineInput } from "@/lib/extract/types";
 import { extractWriting } from "@/lib/extract/writing";
+import { traced } from "@/lib/langfuse";
 import { modelFromEnv } from "@/lib/llm";
 import { VoiceProfile } from "@/lib/schema";
 import { inngest } from "./client";
@@ -31,10 +32,10 @@ export const buildProfileFn = inngest.createFunction(
     // synthesis doesn't re-run the extractors.
     const input = PipelineInput.parse(await step.run("load-input", () => loadPipelineInput(userId, name)));
     const [speech, writing] = await Promise.all([
-      step.run("extract-speech", () => extractSpeech(input.turns)),
-      step.run("extract-writing", () => extractWriting(input.samples)),
+      step.run("extract-speech", () => traced(userId, "build-profile", () => extractSpeech(input.turns))),
+      step.run("extract-writing", () => traced(userId, "build-profile", () => extractWriting(input.samples))),
     ]);
-    const profile = VoiceProfile.parse(await step.run("synthesize", () => synthesize(input, speech, writing)));
+    const profile = VoiceProfile.parse(await step.run("synthesize", () => traced(userId, "build-profile", () => synthesize(input, speech, writing))));
 
     return step.run("save", async () => {
       const row = await insertProfileVersion(userId, { data: profile, source: "build", promptVersion: PIPELINE_PROMPT_VERSION, model: modelFromEnv("extract").id });
