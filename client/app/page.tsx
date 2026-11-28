@@ -17,7 +17,7 @@ const privacy = [
 ];
 
 export default async function Home({ searchParams }: PageProps<"/">) {
-  const { signin } = await searchParams;
+  const { signin, deleted } = await searchParams;
 
   return (
     <div className="flex flex-1 flex-col">
@@ -32,6 +32,11 @@ export default async function Home({ searchParams }: PageProps<"/">) {
         {/* Hero */}
         <section className="mx-auto grid w-full max-w-6xl gap-14 px-4 pb-20 pt-10 sm:px-8 lg:grid-cols-[1.05fr_1fr] lg:pt-20">
           <div className="flex flex-col justify-center">
+            {deleted && (
+              <p role="status" className="mb-6 w-fit rounded-[10px] border border-line bg-surface px-4 py-2 text-sm text-muted">
+                Your account and all its data are deleted.
+              </p>
+            )}
             {signin && (
               <p role="status" className="mb-6 w-fit rounded-[10px] border border-line bg-surface px-4 py-2 text-sm text-muted">
                 Sign in to continue.

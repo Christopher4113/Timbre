@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
+import { ConfirmButton } from "@/components/settings/confirm-button";
 import { Wordmark } from "@/components/wordmark";
+import { deleteAccountAction } from "@/app/(app)/settings/actions";
 import { getLatestConsent, recordConsent } from "@/lib/db/queries";
 import { CONSENT_VERSION, requireUser } from "@/lib/session";
 
@@ -40,6 +42,10 @@ export default async function ConsentPage() {
           Continue
         </button>
       </form>
+      <div className="mt-12 border-t border-line pt-6">
+        <p className="mb-3 text-sm text-muted">Don&rsquo;t agree? You can delete your account and anything stored with it instead.</p>
+        <ConfirmButton action={deleteAccountAction} label="Delete my account" confirm="Yes, delete everything" />
+      </div>
     </div>
   );
 }
