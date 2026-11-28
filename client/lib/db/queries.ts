@@ -65,9 +65,39 @@ export async function deleteSample(userId: string, id: string) {
   await db.delete(samples).where(and(eq(samples.id, id), eq(samples.userId, userId)));
 }
 
-// ---- Interviews (filled by the ElevenLabs webhook in step 5) ----
+// ---- Interviews ----
 export async function listReadyInterviews(userId: string) {
   return db.select().from(interviews).where(and(eq(interviews.userId, userId), eq(interviews.status, "ready")));
+}
+
+export async function getLatestInterview(userId: string) {
+  const [row] = await db.select().from(interviews).where(eq(interviews.userId, userId)).orderBy(desc(interviews.createdAt)).limit(1);
+  return row ?? null;
+}
+
+/** Called by the client right after the voice session connects. Ownership comes from the session, never the agent. */
+export async function registerInterview(userId: string, conversationId: string) {
+  const [row] = await db.insert(interviews).values({ userId, conversationId }).onConflictDoNothing().returning({ id: interviews.id });
+  return row ?? null; // null: conversation already registered (possibly by someone else)
+}
+
+export async function saveSegments(userId: string, id: string, segments: unknown) {
+  await db.update(interviews).set({ scenarioSegments: segments }).where(and(eq(interviews.id, id), eq(interviews.userId, userId)));
+}
+
+/** Webhook only: the post-call webhook has no session, so it looks up the owner by conversation id. */
+export async function findInterviewForWebhook(conversationId: string) {
+  const [row] = await db.select().from(interviews).where(eq(interviews.conversationId, conversationId));
+  return row ?? null;
+}
+
+export async function completeInterview(userId: string, id: string, transcript: unknown) {
+  await db.update(interviews).set({ transcript, status: "ready" }).where(and(eq(interviews.id, id), eq(interviews.userId, userId)));
+}
+
+export async function getUser(userId: string) {
+  const [row] = await db.select({ id: users.id, name: users.name, email: users.email }).from(users).where(eq(users.id, userId));
+  return row ?? null;
 }
 
 // ---- Profiles (append-only) ----
@@ -104,7 +134,7 @@ export async function getActiveJob(userId: string) {
   const [row] = await db
     .select()
     .from(profileJobs)
-    // ponytail: a job "running" for over 10 min is treated as dead (process killed); Inngest retries replace this in step 5
+    // A job "running" for over 10 min is treated as dead so the user can start another.
     .where(and(eq(profileJobs.userId, userId), eq(profileJobs.status, "running"), sql`${profileJobs.createdAt} > now() - interval '10 minutes'`))
     .orderBy(desc(profileJobs.createdAt))
     .limit(1);

@@ -6,8 +6,6 @@ import { btnPrimary, btnQuiet, card, h1 } from "@/lib/ui";
 import { MAX_SAMPLES, MIN_SAMPLES } from "@/lib/samples";
 import { deleteSampleAction, startBuildAction } from "./actions";
 
-export const maxDuration = 300; // the profile build runs after this action's response
-
 const ERRORS: Record<string, string> = {
   too_few: `Add at least ${MIN_SAMPLES} samples first.`,
   rate_limited: "You've built several profiles today. Try again tomorrow.",

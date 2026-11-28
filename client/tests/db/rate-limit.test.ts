@@ -10,10 +10,10 @@ describe.skipIf(!process.env.DATABASE_URL)("hitRateLimit (Neon)", () => {
     const uid = `test-${crypto.randomUUID()}`;
     try {
       const results = [];
-      for (let i = 0; i < 7; i++) results.push((await hitRateLimit(uid, "signedUrl")).ok); // max 5
+      for (let i = 0; i < 7; i++) results.push((await hitRateLimit(uid, "interview")).ok); // max 5
       expect(results).toEqual([true, true, true, true, true, false, false]);
     } finally {
-      await db.delete(aiUsage).where(eq(aiUsage.key, `${uid}:signedUrl`));
+      await db.delete(aiUsage).where(eq(aiUsage.key, `${uid}:interview`));
     }
   });
 });
