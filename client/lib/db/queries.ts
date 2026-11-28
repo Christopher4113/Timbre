@@ -1,7 +1,8 @@
 import "server-only";
-import { desc, eq, sql } from "drizzle-orm";
+import { and, asc, count, desc, eq, max, sql } from "drizzle-orm";
 import { db } from "./client";
-import { aiUsage, consents, users } from "./schema";
+import { aiUsage, consents, interviews, profileJobs, profiles, samples, users } from "./schema";
+import type { VoiceProfile } from "@/lib/schema";
 import { LIMITS, type LimitBucket } from "@/lib/rate-limit";
 
 // Every function takes userId and scopes by it. Drizzle parameterizes all values;
@@ -42,4 +43,77 @@ export async function hitRateLimit(userId: string, bucket: LimitBucket) {
 /** Deletes the user row; every app table cascades. */
 export async function deleteAccount(userId: string) {
   await db.delete(users).where(eq(users.id, userId));
+}
+
+// ---- Samples ----
+export type SampleContext = (typeof samples.$inferInsert)["context"];
+
+export async function listSamples(userId: string) {
+  return db.select().from(samples).where(eq(samples.userId, userId)).orderBy(asc(samples.createdAt));
+}
+
+export async function countSamples(userId: string) {
+  const [row] = await db.select({ n: count() }).from(samples).where(eq(samples.userId, userId));
+  return row.n;
+}
+
+export async function addSample(userId: string, s: { context: SampleContext; text: string; aiDraft?: string | null }) {
+  await db.insert(samples).values({ userId, context: s.context, text: s.text, aiDraft: s.aiDraft || null });
+}
+
+export async function deleteSample(userId: string, id: string) {
+  await db.delete(samples).where(and(eq(samples.id, id), eq(samples.userId, userId)));
+}
+
+// ---- Interviews (filled by the ElevenLabs webhook in step 5) ----
+export async function listReadyInterviews(userId: string) {
+  return db.select().from(interviews).where(and(eq(interviews.userId, userId), eq(interviews.status, "ready")));
+}
+
+// ---- Profiles (append-only) ----
+export async function getLatestProfile(userId: string) {
+  const [row] = await db.select().from(profiles).where(eq(profiles.userId, userId)).orderBy(desc(profiles.version)).limit(1);
+  return row ?? null;
+}
+
+/** Inserts the next version. The (user_id, version) unique index rejects a concurrent duplicate. */
+export async function insertProfileVersion(
+  userId: string,
+  v: { data: VoiceProfile; source: "build" | "edit"; promptVersion?: string | null; model?: string | null },
+) {
+  const [{ latest }] = await db.select({ latest: max(profiles.version) }).from(profiles).where(eq(profiles.userId, userId));
+  const [row] = await db
+    .insert(profiles)
+    .values({ userId, version: (latest ?? 0) + 1, parentVersion: latest, data: v.data, source: v.source, promptVersion: v.promptVersion, model: v.model })
+    .returning();
+  return row;
+}
+
+// ---- Profile build jobs ----
+export async function createJob(userId: string) {
+  const [row] = await db.insert(profileJobs).values({ userId, status: "running" }).returning();
+  return row;
+}
+
+export async function getJob(userId: string, id: string) {
+  const [row] = await db.select().from(profileJobs).where(and(eq(profileJobs.id, id), eq(profileJobs.userId, userId)));
+  return row ?? null;
+}
+
+export async function getActiveJob(userId: string) {
+  const [row] = await db
+    .select()
+    .from(profileJobs)
+    // ponytail: a job "running" for over 10 min is treated as dead (process killed); Inngest retries replace this in step 5
+    .where(and(eq(profileJobs.userId, userId), eq(profileJobs.status, "running"), sql`${profileJobs.createdAt} > now() - interval '10 minutes'`))
+    .orderBy(desc(profileJobs.createdAt))
+    .limit(1);
+  return row ?? null;
+}
+
+export async function finishJob(userId: string, id: string, result: { profileId: string } | { error: string }) {
+  await db
+    .update(profileJobs)
+    .set("profileId" in result ? { status: "done", profileId: result.profileId } : { status: "failed", error: result.error })
+    .where(and(eq(profileJobs.id, id), eq(profileJobs.userId, userId)));
 }
